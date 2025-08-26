@@ -1,38 +1,56 @@
 import llm
-from llm.default_plugins.openai_models import Chat, Completion, SharedOptions
-import json
+import llm.default_plugins.openai_models
 import requests
+import json
+import httpx
 
-# Hardcoded models for now
 def get_sambanova_models():
-    return [
-         {"id": "Meta-Llama-3.2-1B-Instruct"},
-        {"id": "Meta-Llama-3.2-3B-Instruct"},
-        {"id": "Meta-Llama-3.1-8B-Instruct"},
-        {"id": "Meta-Llama-3.1-8B-Instruct-8k"},
-        {"id": "Meta-Llama-3.1-70B-Instruct"},
-        {"id": "Meta-Llama-3.1-70B-Instruct-8k"},
-        {"id": "Meta-Llama-3.1-405B-Instruct"},
-        {"id": "Meta-Llama-3.1-405B-Instruct-8k"},
-        {"id": "DeepSeek-R1-Distill-Llama-70B"},
-        {"id": "Llama-3.1-Tulu-3-405B"},
-        {"id": "Meta-Llama-3.3-70B-Instruct"},
-        {"id": "Meta-Llama-Guard-3-8B"},
-        {"id": "Llama-3.2-90B-Vision-Instruct"},
-        {"id": "Llama-3.2-11B-Vision-Instruct"},
-        {"id": "Qwen2.5-72B-Instruct"},
-        {"id": "Qwen2.5-Coder-32B-Instruct"},
-        {"id": "QwQ-32B-Preview"},
-    ]
+    """
+    Fetch available models from SambaNova API with caching
+        
+    Returns:
+        List of model dictionaries with 'id' key
+    """
+        
+    # Fetch from API
+    api_key = llm.get_key("", "sambanova", "LLM_SAMBANOVA_KEY")
+    if not api_key:
+        # Fallback to hardcoded models if no API key
+        print("Warning: No SambaNova API key found, returning empty model list.")
+        return []
+    
+    try:
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        response = httpx.get(
+            "https://api.sambanova.ai/v1/models",
+            headers=headers,
+            timeout=30.0
+        )
+        response.raise_for_status()
+        
+        data = response.json()
+        models = [{"id": model["id"]} for model in data["data"]]
+                
+        return models
+        
+    except Exception as e:
+        # Log error and fallback to hardcoded models
+        print(f"Warning: Failed to fetch models from SambaNova API: {e}")
+        return []
 
-class SambaNovaChat(Chat):
+
+class SambaNovaChat(llm.default_plugins.openai_models.Chat):
     needs_key = "sambanova"
     key_env_var = "SAMBANOVA_KEY"
 
     def __str__(self):
         return "SambaNova: {}".format(self.model_id)
 
-class SambaNovaCompletion(Completion):
+class SambaNovaCompletion(llm.default_plugins.openai_models.Completion):
     needs_key = "sambanova"
     key_env_var = "SAMBANOVA_KEY"
 
@@ -98,21 +116,16 @@ def register_models(register):
 
     for model_definition in models:
         chat_model = SambaNovaChat(
-            model_id="sambanova/{}".format(model_definition["id"]),
-            model_name=model_definition["id"],
-            api_base="https://api.sambanova.ai/v1",
-            headers={"HTTP-Referer": "https://llm.datasette.io/", "X-Title": "LLM"},
+            model_id=f"sambanova/{model_definition['id']}",
+            model_name=model_definition['id'],
+            api_base="https://api.sambanova.ai/v1"
         )
         register(chat_model)
 
-    for model_definition in models:
+        # Add completion model (without AsyncCompletion since it doesn't exist)
         completion_model = SambaNovaCompletion(
-            model_id="sambanovacompletion/{}".format(model_definition["id"]),
-            model_name=model_definition["id"],
-            api_base="https://api.sambanova.ai/v1",
-            headers={"HTTP-Referer": "https://llm.datasette.io/", "X-Title": "LLM"},
+            model_id=f"sambanova/{model_definition['id']}-completion",
+            model_name=model_definition['id'],
+            api_base="https://api.sambanova.ai/v1"
         )
         register(completion_model)
-
-class DownloadError(Exception):
-    pass
