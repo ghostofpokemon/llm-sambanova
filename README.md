@@ -33,28 +33,29 @@ Enter key: <paste key here>
 
 To list available models, run:
 ```bash
-llm models list
+llm models -q sambanova
 ```
 You should see a list that looks something like this:
 ```
-SambaNova: sambanova/Meta-Llama-3.2-1B-Instruct
-SambaNova: sambanova/Meta-Llama-3.2-3B-Instruct
-SambaNova: sambanova/Meta-Llama-3.1-8B-Instruct
-SambaNova: sambanova/Meta-Llama-3.1-8B-Instruct-8k
-SambaNova: sambanova/Meta-Llama-3.1-70B-Instruct
-SambaNova: sambanova/Meta-Llama-3.1-70B-Instruct-8k
-SambaNova: sambanova/Meta-Llama-3.1-405B-Instruct
-SambaNova: sambanova/Meta-Llama-3.1-405B-Instruct-8k
-SambaNova: sambanovacompletion/Meta-Llama-3.2-1B-Instruct
-SambaNova: sambanovacompletion/Meta-Llama-3.2-3B-Instruct
-SambaNova: sambanovacompletion/Meta-Llama-3.1-8B-Instruct
-SambaNova: sambanovacompletion/Meta-Llama-3.1-8B-Instruct-8k
-SambaNova: sambanovacompletion/Meta-Llama-3.1-70B-Instruct
-SambaNova: sambanovacompletion/Meta-Llama-3.1-70B-Instruct-8k
-SambaNova: sambanovacompletion/Meta-Llama-3.1-405B-Instruct
-SambaNova: sambanovacompletion/Meta-Llama-3.1-405B-Instruct-8k
+SambaNova: sambanova/DeepSeek-R1-0528
+SambaNova: sambanova/DeepSeek-R1-0528-completion
+SambaNova: sambanova/DeepSeek-R1-Distill-Llama-70B
+SambaNova: sambanova/DeepSeek-R1-Distill-Llama-70B-completion
+SambaNova: sambanova/DeepSeek-V3-0324
+SambaNova: sambanova/DeepSeek-V3-0324-completion
+SambaNova: sambanova/DeepSeek-V3.1
+SambaNova: sambanova/DeepSeek-V3.1-completion
+SambaNova: sambanova/E5-Mistral-7B-Instruct
+SambaNova: sambanova/E5-Mistral-7B-Instruct-completion
+SambaNova: sambanova/Llama-3.3-Swallow-70B-Instruct-v0.4
+SambaNova: sambanova/Llama-3.3-Swallow-70B-Instruct-v0.4-completion
 ...
 ```
+To update the model list, reinstall the plugin:
+```bash
+llm install llm-sambanova -U
+```
+
 To run a prompt against a model, pass its full model ID to the `-m` option, like this:
 ```bash
 llm -m sambanova/Meta-Llama-3.2-1B-Instruct "Five spooky names for a pet tarantula"
