@@ -27,7 +27,7 @@ class SambaNovaCompletion(Completion):
     needs_key = "sambanova"
     key_env_var = "SAMBANOVA_KEY"
 
-    def execute(self, prompt, stream, response, conversation=None):
+    def execute(self, prompt, stream, response, conversation=None, **kwargs):
         messages = []
         if conversation is not None:
             for prev_response in conversation.responses:
